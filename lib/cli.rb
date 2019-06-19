@@ -2,18 +2,20 @@ class CommandLineInterface
 
     def greet
         puts 'Welcome to GameHub! The best video game review site in the world!'
+        puts "********************"
+        puts ""
     end
 
     def menu
         prompt = TTY::Prompt.new
-        @input = prompt.select("User select an option from the GameHub:", ["Browse Reviews", "Find Review By Game Title", "Find Reviews By User Name", "Highly Rated Video Games", "Write Review", "Exit"])
+        @input = prompt.select("User select an option from the GameHub:", ["Browse Reviews", "Find Reviews By Game Title", "Find Reviews By User Name", "Highly Rated Video Games", "Write Review", "Exit"])
     end
 
     def menu_choice
         case @input
         when "Browse Reviews"
             all_reviews
-        when "Find Review By Game Title"
+        when "Find Reviews By Game Title"
             request_game_title
             find_by_title
         when "Find Reviews By User Name"
@@ -92,13 +94,20 @@ class CommandLineInterface
     end
 
     def popular_games
+        @popular_titles = []
         Review.all.map do |review|
             if review.rating > 3 
-                puts "-------------------"
-                puts ""
-                puts review.video_game.title.upcase
+              @popular_titles << review.video_game.title.upcase
             end
         end
+        puts ""
+        puts "-------------------"
+        puts "The following games have a rating of 3/5 or higher!"
+        puts "-------------------"
+        puts ""
+        puts @popular_titles.uniq
+        puts ""
+        puts "-------------------"
     end
 
     def review_input
