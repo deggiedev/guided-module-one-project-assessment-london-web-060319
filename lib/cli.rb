@@ -1,5 +1,13 @@
 class CommandLineInterface
 
+    attr_reader :prompt, :font, :pastel
+
+    def initialize
+        @prompt = TTY::Prompt.new
+        @pastel = Pastel.new
+        @font = TTY::Font.new(:doom)
+    end
+
     def greet
         puts 'Welcome to GameHub! The best video game review site in the world!'
         puts "********************"
@@ -7,7 +15,7 @@ class CommandLineInterface
     end
 
     def menu
-        prompt = TTY::Prompt.new
+        #prompt = TTY::Prompt.new
         @input = prompt.select("User select an option from the GameHub:", ["Browse Reviews", "Find Reviews By Game Title", "Find Reviews By User Name", "Highly Rated Video Games", "Write Review", "Update Existing Review", "Delete Review", "Exit"])
     end
 
@@ -121,11 +129,9 @@ class CommandLineInterface
         puts ""
         puts "********************"
         puts  ""
-        prompt = TTY::Prompt.new
         @new_username = prompt.ask('What is your name?', default: ENV['USER'])
         puts "-------------------"
-        @string_title = prompt.select("Which title from GameHub would you like to review?:", ["Tomb Raider", "Fifa 19", "Goldeneye", "Crash Bandicoot", "GTA Vice City", "Mario Kart", "Splinter Cell", "Tony Hawks Pro Skater 3", "Gran Turismo 3", "Halo"])
-        
+        @string_title = prompt.select("Which title from GameHub would you like to review?:", ["Tomb Raider", "Fifa 19", "Goldeneye", "Crash Bandicoot", "GTA Vice City", "Mario Kart", "Splinter Cell", "Tony Hawks Pro Skater 3", "Gran Turismo 3", "Halo"])      
         @new_title = VideoGame.find_by(title: @string_title)
         puts "-------------------"
         @new_rating = prompt.ask('What would you rate this game out of 5?', default: ENV['0'])
@@ -145,33 +151,32 @@ class CommandLineInterface
     end
 
     def update_review
-        prompt = TTY::Prompt.new
         request_user
         puts "which GameHub review would you like to update, enter a Video Game title here:"
         @update_video_game_title = gets.chomp
         @update_rating = prompt.ask('update this game with a new rating out of 5:', default: ENV['0'])
         puts "-------------------"
         @update_review = prompt.ask('update this review wihh new content:', default: ENV['no review'])
-        
         find_user = User.find_by(user_name: @request_user)
-
-        find_user.reviews.map do |review_by_user|
-            if review_by_user.video_game.title == @update_video_game_title
-                review_by_user.update(user_id: review_by_user.user.id, video_game_id: review_by_user.video_game.id, rating: @update_rating, review_description: @update_review)
+            find_user.reviews.map do |review_by_user|
+                if review_by_user.video_game.title == @update_video_game_title
+                    review_by_user.update(user_id: review_by_user.user.id, video_game_id: review_by_user.video_game.id, rating: @update_rating, review_description: @update_review)
+                end
             end
-        end
     end
 
     def delete_review
-        prompt = TTY::Prompt.new
         request_user
         puts "which GameHub review would you like to delete, enter a Video Game title here:"
+        puts "-------------------"
         @update_video_game_title = gets.chomp
         find_user = User.find_by(user_name: @request_user)
-        find_user.reviews.map do |review_by_user|
-            if review_by_user.video_game.title == @update_video_game_title
-                review_by_user.delete
+            find_user.reviews.map do |review_by_user|
+                if review_by_user.video_game.title == @update_video_game_title
+                    review_by_user.delete
+                    puts "-------------------"
+                    puts "Your review has been deleted from our database"
+                end
             end
-        end
     end
 end
