@@ -8,6 +8,10 @@ class CommandLineInterface
         @font = TTY::Font.new(:doom)
     end
 
+    def header
+        puts font.write("GAME HUB")
+    end
+
     def greet
         puts 'Welcome to GameHub! The best video game review site in the world!'
         puts "********************"
@@ -15,7 +19,8 @@ class CommandLineInterface
     end
 
     def menu
-        #prompt = TTY::Prompt.new
+        puts "********************"
+        puts ""
         @input = prompt.select("User select an option from the GameHub:", ["Browse Reviews", "Find Reviews By Game Title", "Find Reviews By User Name", "Highly Rated Video Games", "Write Review", "Update Existing Review", "Delete Review", "Exit"])
     end
 
@@ -23,29 +28,50 @@ class CommandLineInterface
         case @input
         when "Browse Reviews"
             all_reviews
+            sleep 4
+            menu
+            menu_choice
         when "Find Reviews By Game Title"
             request_game_title
             find_by_title
+            sleep 4
+            menu
+            menu_choice
         when "Find Reviews By User Name"
             request_user
             find_by_username
+            sleep 4
+            menu
+            menu_choice
         when "Highly Rated Video Games"
             popular_games
+            sleep 4
+            menu
+            menu_choice
         when "Write Review"
             review_input
             create_user
             create_review
+            sleep 4
+            menu
+            menu_choice
         when "Update Existing Review"
             update_review
+            sleep 4
+            menu
+            menu_choice
         when "Delete Review"
             delete_review
+            sleep 4
+            menu
+            menu_choice
         else "Exit"
             exit
         end
     end
 
     def request_game_title
-        puts "********************"
+        puts "-------------------"
         puts ""
         puts "To find some GameHub reviews enter a Video Game title here:"
         @video_game_title = gets.chomp
@@ -161,6 +187,8 @@ class CommandLineInterface
             find_user.reviews.map do |review_by_user|
                 if review_by_user.video_game.title == @update_video_game_title
                     review_by_user.update(user_id: review_by_user.user.id, video_game_id: review_by_user.video_game.id, rating: @update_rating, review_description: @update_review)
+                    puts "-------------------"
+                    puts "Great news! Your review has been updated!"
                 end
             end
     end
