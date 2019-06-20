@@ -8,7 +8,7 @@ class CommandLineInterface
 
     def menu
         prompt = TTY::Prompt.new
-        @input = prompt.select("User select an option from the GameHub:", ["Browse Reviews", "Find Reviews By Game Title", "Find Reviews By User Name", "Highly Rated Video Games", "Write Review", "Exit"])
+        @input = prompt.select("User select an option from the GameHub:", ["Browse Reviews", "Find Reviews By Game Title", "Find Reviews By User Name", "Highly Rated Video Games", "Write Review", "Update Existing Review", "Delete Review", "Exit"])
     end
 
     def menu_choice
@@ -27,6 +27,10 @@ class CommandLineInterface
             review_input
             create_user
             create_review
+        when "Update Existing Review"
+            update_review
+        when "Delete Review"
+            delete_review
         else "Exit"
             exit
         end
@@ -136,7 +140,38 @@ class CommandLineInterface
     def create_review
         review = Review.create(user_id: @createuser.id, video_game_id: @new_title.id, rating: @new_rating, review_description: @new_review)
         puts ""
-        puts "Thanks for the review you nerd!"
+        puts "Thanks for the review you gamer!"
         puts ""
+    end
+
+    def update_review
+        prompt = TTY::Prompt.new
+        request_user
+        puts "which GameHub review would you like to update, enter a Video Game title here:"
+        @update_video_game_title = gets.chomp
+        @update_rating = prompt.ask('update this game with a new rating out of 5:', default: ENV['0'])
+        puts "-------------------"
+        @update_review = prompt.ask('update this review wihh new content:', default: ENV['no review'])
+        
+        find_user = User.find_by(user_name: @request_user)
+
+        find_user.reviews.map do |review_by_user|
+            if review_by_user.video_game.title == @update_video_game_title
+                review_by_user.update(user_id: review_by_user.user.id, video_game_id: review_by_user.video_game.id, rating: @update_rating, review_description: @update_review)
+            end
+        end
+    end
+
+    def delete_review
+        prompt = TTY::Prompt.new
+        request_user
+        puts "which GameHub review would you like to delete, enter a Video Game title here:"
+        @update_video_game_title = gets.chomp
+        find_user = User.find_by(user_name: @request_user)
+        find_user.reviews.map do |review_by_user|
+            if review_by_user.video_game.title == @update_video_game_title
+                review_by_user.delete
+            end
+        end
     end
 end
