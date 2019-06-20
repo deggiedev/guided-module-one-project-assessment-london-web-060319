@@ -14,18 +14,22 @@ class CommandLineInterface
 
     def greet
         puts 'Welcome to GameHub! The best video game review site in the world!'
-        puts "********************"
         puts ""
     end
 
     def menu
-        puts "********************"
+        puts "-------------------"
         puts ""
-        @input = prompt.select("User select an option from the GameHub:", ["Browse Reviews", "Find Reviews By Game Title", "Find Reviews By User Name", "Highly Rated Video Games", "Write Review", "Update Existing Review", "Delete Review", "Exit"])
+        @input = prompt.select("User select an option from the GameHub:", ["All My Reviews", "Browse Reviews", "Find Reviews By Game Title", "Find Reviews By User Name", "Highly Rated Video Games", "Write Review", "Update Existing Review", "Delete Review", "Exit"])
     end
 
     def menu_choice
         case @input
+        when "All My Reviews"
+            all_my_reviews
+            sleep 4
+            menu
+            menu_choice
         when "Browse Reviews"
             all_reviews
             sleep 4
@@ -70,23 +74,28 @@ class CommandLineInterface
         end
     end
 
+    def login
+        puts "Please enter you're name?"
+        name = gets.chomp
+        @current_user = User.find_by(user_name: name)
+        menu
+        menu_choice
+    end
+
     def request_game_title
-        puts "-------------------"
         puts ""
         puts "To find some GameHub reviews enter a Video Game title here:"
         @video_game_title = gets.chomp
-        puts ""
     end
 
     def find_by_title
         find_game = VideoGame.find_by(title: @video_game_title)
-        puts "********************"
+        puts "-------------------"
         puts ""
         puts find_game.title.upcase
         puts ""
         
         find_game.reviews.map do |review|
-            puts "-------------------"
             puts "Rating: #{review.rating}/5"
             puts "Review: #{review.review_description}"
             puts ""
@@ -94,7 +103,6 @@ class CommandLineInterface
     end
 
     def request_user
-        puts "********************"
         puts ""
         puts "To find some user reviews enter a user name here:"
         @request_user = gets.chomp
@@ -103,7 +111,6 @@ class CommandLineInterface
 
     def find_by_username
         find_user = User.find_by(user_name: @request_user)
-        puts "********************"
         puts ""
         puts find_user.user_name.upcase
         puts ""
@@ -114,7 +121,7 @@ class CommandLineInterface
             puts "Rating: #{review.rating}/5"
             puts "Review: #{review.review_description}"
             puts ""
-            puts review.video_game.title
+            #puts review.video_game.title
         end
     end
 
@@ -131,10 +138,26 @@ class CommandLineInterface
         end
     end
 
+    def print_review(review)
+        puts "-------------------"
+            puts ""
+            puts "#{review.video_game.title.upcase}"
+            puts ""
+            puts "User: #{review.user.user_name}"
+            puts "Rating: #{review.rating}/5"
+            puts "Review: #{review.review_description}"
+    end
+
+    def all_my_reviews
+        @current_user.reviews.each do |review| 
+            print_review(review)
+        end
+    end
+
     def popular_games
         @popular_titles = []
         Review.all.map do |review|
-            if review.rating > 3 
+            if review.rating > 3
               @popular_titles << review.video_game.title.upcase
             end
         end
@@ -149,11 +172,10 @@ class CommandLineInterface
     end
 
     def review_input
-        puts "********************"
         puts ""
         puts "Would you like to tell GameHub about who you are, and which game you'd like to review?"
         puts ""
-        puts "********************"
+        puts "-------------------"
         puts  ""
         @new_username = prompt.ask('What is your name?', default: ENV['USER'])
         puts "-------------------"

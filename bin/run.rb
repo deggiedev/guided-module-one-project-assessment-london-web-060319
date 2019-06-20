@@ -5,6 +5,8 @@ cli.header
 
 cli.greet
 
+cli.login
+
 cli.menu
 
 cli.menu_choice
