@@ -32,6 +32,7 @@ class CommandLineInterface
     end
 
     def menu_choice
+        @current_user.reload()
         case @input
         when "All My Reviews"
             all_my_reviews
@@ -65,11 +66,13 @@ class CommandLineInterface
             menu
             menu_choice
         when "Update Existing Review"
+            review_input
             update_review
             sleep 4
             menu
             menu_choice
         when "Delete Review"
+            #review_input
             delete_review
             sleep 4
             menu
@@ -144,17 +147,10 @@ class CommandLineInterface
         puts "Thanks for the review you gamer!"
         puts ""
     end
-
+   
     def update_review
-        puts "Enter review by title to update:"
-        @game_title = gets.chomp
-        @nnew_rating = prompt.ask('What would you rate this game out of 5?', default: ENV['0'])
-        @nnew_review = prompt.ask('Tell us about this game:', default: ENV['no review'])
-        @current_user.reviews.map do |review|
-            if review.video_game.title == @game_title
-                review.update(user_id: @current_user.id, video_game_id: review.video_game.id, rating: @nnew_rating, review_description: @nnew_review)
-            end
-        end
+        @review_to_update = Review.find_by(video_game: @new_title, user: @current_user )
+        @review_to_update.update(user_id: @current_user.id, video_game_id: @new_title.id, rating: @new_rating, review_description: @new_review)
         puts "-------------------"
         puts "Great news! Your review has been updated!"
     end
@@ -163,16 +159,12 @@ class CommandLineInterface
         puts "which GameHub review would you like to delete, enter a Video Game title here:"
         puts "-------------------"
         @update_video_game_title = gets.chomp
-            @current_user.reviews.map do |review_by_user|
-                if review_by_user.video_game.title == @update_video_game_title
+        @current_user.reviews.map do |review_by_user|
+            if review_by_user.video_game.title == @update_video_game_title
                     review_by_user.delete
                     puts "-------------------"
                     puts "Your review has been deleted from our database"
-                end
             end
-    end
-
-    def delete_all_reviews
-        
+        end
     end
 end

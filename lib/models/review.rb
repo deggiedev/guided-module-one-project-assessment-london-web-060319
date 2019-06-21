@@ -10,5 +10,4 @@ class Review < ActiveRecord::Base
         self.create(user_id: user_id, video_game_id: video_game_id, rating: rating, review_description: description)
     end
 
-    
 end
