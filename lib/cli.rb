@@ -1,5 +1,10 @@
 class CommandLineInterface
-    
+    def music
+        pid = fork{ exec 'afplay', 'lib/PlayStation (PS one) Load Up Screen.mp3' }
+        return pid
+        #pid = fork{ exec 'killall', 'afplay' }
+    end
+
     attr_reader :prompt, :font, :pastel
 
     def initialize
@@ -9,7 +14,7 @@ class CommandLineInterface
     end
 
     def header
-        puts font.write("GAME HUB")
+        puts pastel.blue(font.write("GAME HUB"))
     end
 
     def greet
@@ -36,45 +41,44 @@ class CommandLineInterface
         case @input
         when "All My Reviews"
             all_my_reviews
-            sleep 4
+            sleep 2
             menu
             menu_choice
         when "Browse Reviews"
             all_reviews
-            sleep 4
+            sleep 2
             menu
             menu_choice
         when "Find Reviews By Game Title"
             request_game_title
-            sleep 4
+            sleep 2
             menu
             menu_choice
         when "Find Reviews By User Name"
             request_user
-            sleep 4
+            sleep 2
             menu
             menu_choice
         when "Highly Rated Video Games"
             highly_rated_video_games
-            sleep 4
+            sleep 2
             menu
             menu_choice
         when "Write Review"
             review_input
             new_review
-            sleep 4
+            sleep 2
             menu
             menu_choice
         when "Update Existing Review"
             review_input
             update_review
-            sleep 4
+            sleep 2
             menu
             menu_choice
         when "Delete Review"
-            #review_input
             delete_review
-            sleep 4
+            sleep 2
             menu
             menu_choice
         else "Exit"
@@ -84,8 +88,8 @@ class CommandLineInterface
 
     def request_game_title
         puts ""
-        puts "To find some GameHub reviews enter a Video Game title here:"
-        @video_game_title = gets.chomp
+        @video_game_title = prompt.select("Which title from GameHub would you like to review?:", ["Tomb Raider", "Fifa 19", "Goldeneye", "Crash Bandicoot", "GTA Vice City", "Mario Kart", "Splinter Cell", "Tony Hawks Pro Skater 3", "Gran Turismo 3", "Halo"])
+        #@video_game_title = gets.chomp
         find_game = VideoGame.find_by_title(@video_game_title)
         find_game.reviews.map do |review|
             print_review(review)
@@ -124,10 +128,17 @@ class CommandLineInterface
     end
 
     def highly_rated_video_games
+        puts ""
+        puts "-------------------"
+        @highly_rated = []
         highly_rated = Review.popular_games
         highly_rated.map do |review|
-            print_review(review)
+            @highly_rated << review.video_game.title
         end
+        puts "The following games have a rating of 3/5 or higher"
+        puts "-------------------"
+        puts @highly_rated.uniq
+
     end
 
     def review_input
